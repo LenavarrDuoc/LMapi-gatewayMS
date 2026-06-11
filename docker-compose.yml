@@ -1,19 +1,16 @@
 version: '3.8'
-
 services:
   api-gateway:
     build: .
     container_name: api-gateway
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     ports:
       - "8080:8080"
     environment:
       - SPRING_APPLICATION_NAME=api-gateway
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://host.docker.internal:8090/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8090/eureka
     networks:
-      - ms-network
+      - libmark-network
 
 networks:
-  ms-network:
-    driver: bridge
+  libmark-network:
+    external: true
