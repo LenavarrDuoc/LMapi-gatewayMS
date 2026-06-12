@@ -1,9 +1,110 @@
 server:
   port: 8080
+  #SE supone que la línea de abajo va en Eureka y no en Gateway.
+  #waitTimeInMsWhenSyncEmpty: 0
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # Conservar el Host original que usa el cliente en Postman (Sugerencia para HATEOAS)
+      # Puede ser parte del problema de comunicación de los servicios dockerizados.
+      # Comentar las siguientes líneas si da problemas con dockerización.
+      # default-filters:
+      #   - PreserveHostHeader
+      # x-forwarded:
+      #   host-enabled: true
+      #   port-enabled: true
+
+      # Ruta para microservicios utilizando Spring Cloud Gateway Webflux
+      server:
+        webflux:
+          routes:
+            - id: LMUserMS
+              uri: lb://LMUserMS
+              predicates:
+                - Path=/api/v1/usuarios/**,/api/v1/roles/**
+
+            - id: LMCustomerMS
+              uri: lb://LMCustomerMS
+              predicates:
+                - Path=/api/v1/clientes/**,/api/v1/direcciones/**,/api/v2/clientes/**,/api/v2/direcciones/**
+
+            - id: LMCatalogMS
+              uri: lb://LMCatalogMS
+              predicates:
+                - Path=/api/v1/productos/**,/api/v1/proveedores/**,/api/v2/productos/**,/api/v2/proveedores/**
+
+            - id: LMOrderMS
+              uri: lb://LMOrderMS
+              predicates:
+                - Path=/api/v1/pedidos/**
+
+            - id: LMStockMS
+              uri: lb://LMStockMS
+              predicates:
+                - Path=/api/v1/inventarios/**,/api/v2/inventarios/**
+
+            - id: LMCartMS
+              uri: lb://LMCartMS
+              predicates:
+                - Path=/api/v1/carritos/**
+
+            - id: LMSellMS
+              uri: lb://LMSellMS
+              predicates:
+                - Path=/api/v1/descuentos/**,/api/v1/ventas/**
+
+            - id: LibreriaMaketPaymentMS
+              uri: lb://LibreriaMaketPaymentMS
+              predicates:
+                - Path=/api/v1/pagos/**,/api/v1/metodos-de-pago/**
+
+            # --- RUTAS SWAGGER (COMENTADAS) ---
+            # - id: LMStockMS-swagger
+            #   uri: lb://LMStockMS
+            #   predicates:
+            #     - Path=/lmstockms/doc/**,/lmstockms/v1/api-docs/**
+            #   filters:
+            #     - StripPrefix=1
+            #
+            # - id: LMCatalogMS-swagger
+            #   uri: lb://LMCatalogMS
+            #   predicates:
+            #     - Path=/lmcatalogms/doc/**,/lmcatalogms/v3/api-docs/**
+            #   filters:
+            #     - StripPrefix=1
 
 eureka:
   client:
-    registerWithEureka: true
-    fetchRegistry: true
-  server:
-    waitTimeInMsWhenSyncEmpty: 0
+    service-url:
+      defaultZone: http://localhost:8090/eureka/
+    # Ajustado a false según la indicación de tus comentarios:
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+# CONFIGURACIÓN DE DOCUMENTACIÓN SWAGGER / SPRINGDOC
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    # Opciones alternativas para buscar informes mediante Eureka:
+    # enable-native-support: true
+    # swagger-ui:
+    #   show-common-extensions: true
+    urls:
+      - name: LMCustomerMS
+        url: /api/v1/clientes/v3/api-docs
+      - name: LMCartMS
+        url: /api/v1/carritos/v3/api-docs
+      - name: LMCatalogMS
+        url: /api/v1/productos/v3/api-docs
+      - name: LMStockMS
+        url: /api/v1/inventarios/v3/api-docs
+      - name: LMSellMS
+        url: /api/v1/ventas/v3/api-docs
+      - name: LibreriaMaketPaymentMS
+        url: /api/v1/pagos/v3/api-docs
+
