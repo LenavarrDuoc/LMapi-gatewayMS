@@ -90,6 +90,7 @@ eureka:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+    doc-expansion: list
     # Opciones alternativas para buscar informes mediante Eureka:
     # enable-native-support: true
     # swagger-ui:
@@ -107,4 +108,8 @@ springdoc:
         url: /api/v1/ventas/v3/api-docs
       - name: LibreriaMaketPaymentMS
         url: /api/v1/pagos/v3/api-docs
+      - name: LMUserMS
+        url: /api/v1/usuarios/v3/api-docs
+      - name: LMOrderMS
+        url: /api/v1/pedidos/v3/api-docs
 
